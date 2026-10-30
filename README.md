@@ -1,5 +1,7 @@
 # Sessionflow
 
+[![CI](https://github.com/ultra-fast-gopher/sessionflow/actions/workflows/ci.yml/badge.svg)](https://github.com/ultra-fast-gopher/sessionflow/actions/workflows/ci.yml)
+
 ISUCON用の、Go middleware + HTTP収集 + 行動解析CLI + オフラインHTMLレポート。
 sessionごとに「どのルートから、どのルートへリクエストしたか」を調べるための独立ツールです。
 
