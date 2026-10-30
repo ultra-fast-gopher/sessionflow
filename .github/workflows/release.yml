@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to build and publish
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -15,6 +21,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
       - uses: actions/setup-go@v7
         with:
           go-version: '1.26.x'
@@ -22,17 +30,25 @@ jobs:
       - name: Test core and framework adapters
         run: make test
       - name: Build release archives
-        run: ./scripts/build-release.sh "$GITHUB_REF_NAME"
+        env:
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: ./scripts/build-release.sh "$RELEASE_TAG"
       - name: Create GitHub Release and upload binaries
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
         run: |
-          release_flags=()
-          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
-            release_flags+=(--prerelease)
+          assets=(dist/"$RELEASE_TAG"/*)
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+          else
+            release_flags=()
+            if [[ "$RELEASE_TAG" == *-* ]]; then
+              release_flags+=(--prerelease)
+            fi
+            gh release create "$RELEASE_TAG" "${assets[@]}" \
+              --title "sessionflow $RELEASE_TAG" \
+              --generate-notes \
+              --verify-tag \
+              "${release_flags[@]}"
           fi
-          gh release create "$GITHUB_REF_NAME" dist/"$GITHUB_REF_NAME"/* \
-            --title "sessionflow $GITHUB_REF_NAME" \
-            --generate-notes \
-            --verify-tag \
-            "${release_flags[@]}"
