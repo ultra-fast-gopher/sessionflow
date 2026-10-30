@@ -16,7 +16,7 @@ import (
 type sessionKey struct{}
 
 func TestContainerFilterRouteStatusBytesAndSession(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "restful", HashKey: []byte("shared"), MaxEvents: 10, Session: func(req *http.Request) string { value, _ := req.Context().Value(sessionKey{}).(string); return value }})
+	r, err := flow.New(flow.Options{Source: "restful", MaxEvents: 10, Session: func(req *http.Request) string { value, _ := req.Context().Value(sessionKey{}).(string); return value }})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +85,7 @@ func TestUnmatchedRouteUsesServeMux404OutsideFilterCapture(t *testing.T) {
 }
 
 func TestHandlerPanicDoesNotRunMetadataCallbacks(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "restful-panic", HashKey: []byte("shared"), MaxEvents: 10,
+	r, err := flow.New(flow.Options{Source: "restful-panic", MaxEvents: 10,
 		Route:   func(*http.Request) string { panic("metadata route") },
 		Session: func(*http.Request) string { panic("metadata session") },
 	})

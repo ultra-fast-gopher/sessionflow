@@ -26,7 +26,7 @@ func newRecorder(t *testing.T, opts flow.Options) *flow.Recorder {
 }
 
 func TestMiddlewareRoutePrivacyAndNestedGroups(t *testing.T) {
-	r := newRecorder(t, flow.Options{Source: "chi", HashKey: []byte("shared"), MaxEvents: 10})
+	r := newRecorder(t, flow.Options{Source: "chi", MaxEvents: 10})
 	router := chi.NewRouter()
 	router.Use(adapter.Middleware(r))
 	router.Route("/api", func(api chi.Router) {

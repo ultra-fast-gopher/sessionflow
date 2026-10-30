@@ -1,6 +1,7 @@
 // Package fasthttp adapts native fasthttp handlers without converting requests
 // to net/http. Root Recorder Options.Session, Route and Include are net/http-only;
-// use this package's Options callbacks instead. Streamed response byte counts
+// use this package's Options callbacks instead. Recorder ExcludePaths is applied
+// to the native request path. Streamed response byte counts
 // are marked unknown and the stream is left untouched.
 // Example: handler := fasthttp.Wrap(rec, appHandler, fasthttp.Options{Route: routeTemplate}).
 package fasthttp
@@ -44,7 +45,7 @@ func Wrap(rec *flow.Recorder, handler fasthttp.RequestHandler, options ...Option
 			handler(ctx)
 			return
 		}
-		span := rec.Begin()
+		span := rec.BeginPath(string(path))
 		if span == nil {
 			handler(ctx)
 			return

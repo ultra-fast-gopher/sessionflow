@@ -11,7 +11,7 @@ import (
 )
 
 func TestMiddlewareCapturesMatchedHandler(t *testing.T) {
-	rec, err := sessionflow.New(sessionflow.Options{Source: "goji-test", HashKey: []byte("test-key")})
+	rec, err := sessionflow.New(sessionflow.Options{Source: "goji-test"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,7 +50,7 @@ func TestMiddlewareCapturesMatchedHandler(t *testing.T) {
 	if e.DurationNS <= 0 {
 		t.Fatalf("duration = %d", e.DurationNS)
 	}
-	if e.Route != "/items/:id" || e.Status != 202 || e.Bytes != 2 || e.Session == "private-session" || len(e.Session) != 32 {
+	if e.Route != "/items/:id" || e.Status != 202 || e.Bytes != 2 || e.Session == "private-session" || len(e.Session) != 64 {
 		t.Fatalf("event = %#v", e)
 	}
 }
@@ -71,7 +71,7 @@ func TestDisabledSkipsNativeSessionCallbacks(t *testing.T) {
 }
 
 func TestHandlerTracksFinalStatusAfterInformationalResponse(t *testing.T) {
-	rec, err := sessionflow.New(sessionflow.Options{Source: "goji-status-test", HashKey: []byte("test-key")})
+	rec, err := sessionflow.New(sessionflow.Options{Source: "goji-status-test"})
 	if err != nil {
 		t.Fatal(err)
 	}

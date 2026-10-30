@@ -60,7 +60,7 @@ func TestOverlappingIntervalsAndIdleGaps(t *testing.T) {
 	}
 }
 
-func TestDifferentRunsAndKeysCannotBeJoined(t *testing.T) {
+func TestDifferentRunsAndHashIDsCannotBeJoined(t *testing.T) {
 	a := snapshot("a", event(1, "same", "/a", 0, time.Millisecond, 200))
 	b := snapshot("b", event(1, "same", "/b", 2*time.Millisecond, time.Millisecond, 200))
 	b.KeyID = "other"

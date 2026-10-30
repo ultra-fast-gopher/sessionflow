@@ -31,7 +31,7 @@ func main() {
 		}
 		return
 	}
-	r, err := flow.New(flow.Options{CookieName: "session", HashKey: []byte(os.Getenv("SESSIONFLOW_HASH_KEY")), MaxEvents: 100000})
+	r, err := flow.New(flow.Options{CookieName: "session", MaxEvents: 100000})
 	if err != nil {
 		log.Fatal(err)
 	}

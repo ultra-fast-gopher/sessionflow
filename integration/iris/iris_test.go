@@ -10,7 +10,7 @@ import (
 )
 
 func TestMiddlewareUsesResolvedRouteAndSession(t *testing.T) {
-	rec, err := sessionflow.New(sessionflow.Options{Source: "iris-test", HashKey: []byte("test-key")})
+	rec, err := sessionflow.New(sessionflow.Options{Source: "iris-test"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func TestMiddlewareUsesResolvedRouteAndSession(t *testing.T) {
 	if e.DurationNS <= 0 {
 		t.Fatalf("duration = %d", e.DurationNS)
 	}
-	if e.Route != "/users/{id:uint}" || e.Status != 201 || e.Bytes != 2 || e.Session == "private-session" || len(e.Session) != 32 {
+	if e.Route != "/users/{id:uint}" || e.Status != 201 || e.Bytes != 2 || e.Session == "private-session" || len(e.Session) != 64 {
 		t.Fatalf("event = %#v", e)
 	}
 	if snap.Events[1].Route != "<unmatched>" || snap.Events[1].Status != 404 {

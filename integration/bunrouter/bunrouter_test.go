@@ -14,7 +14,7 @@ import (
 )
 
 func TestMiddlewareNestedRouteAndErrors(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "bun", HashKey: []byte("shared"), MaxEvents: 10})
+	r, err := flow.New(flow.Options{Source: "bun", MaxEvents: 10})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,7 +110,7 @@ func TestCustomErrorHandlerResponseIsSameWhenCaptureDisabled(t *testing.T) {
 }
 
 func TestHandlerPanicDoesNotRunRootMetadataCallbacks(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "bun-panic", HashKey: []byte("shared"), MaxEvents: 10,
+	r, err := flow.New(flow.Options{Source: "bun-panic", MaxEvents: 10,
 		Route:   func(*http.Request) string { panic("metadata route") },
 		Session: func(*http.Request) string { panic("metadata session") },
 	})

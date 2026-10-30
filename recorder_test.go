@@ -42,7 +42,7 @@ func request(method, path, session string) *http.Request {
 }
 
 func TestMiddlewarePrivacyAndHTTPBehavior(t *testing.T) {
-	r := recorder(t, Options{MaxEvents: 8, HashKey: []byte("shared")})
+	r := recorder(t, Options{MaxEvents: 8})
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /items/{id}", func(w http.ResponseWriter, req *http.Request) {
 		if _, ok := w.(http.Flusher); !ok {
@@ -110,7 +110,7 @@ func TestCapacityAndNoAnonymousLinkage(t *testing.T) {
 func TestWholeSessionSamplingAcrossSources(t *testing.T) {
 	var snapshots []Snapshot
 	for _, source := range []string{"a", "b"} {
-		r := recorder(t, Options{Source: source, HashKey: []byte("same-key"), SampleEvery: 3, MaxEvents: 1000})
+		r := recorder(t, Options{Source: source, SampleEvery: 3, MaxEvents: 1000})
 		start(t, r, "test")
 		h := r.Wrap(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {}))
 		for i := 0; i < 100; i++ {
@@ -258,7 +258,7 @@ func BenchmarkMiddleware(b *testing.B) {
 	base := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(204) })
 	for _, mode := range []string{"baseline", "disabled", "recording", "full", "sampled"} {
 		b.Run(mode, func(b *testing.B) {
-			opts := Options{MaxEvents: 10000, HashKey: []byte("benchmark-key"), Route: func(*http.Request) string { return "/items/{id}" }}
+			opts := Options{MaxEvents: 10000, Route: func(*http.Request) string { return "/items/{id}" }}
 			if mode == "sampled" {
 				opts.SampleEvery = 1000000
 			}

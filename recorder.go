@@ -2,7 +2,6 @@
 package sessionflow
 
 import (
-	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -21,6 +20,10 @@ import (
 
 const Version = 1
 
+// sessionHashID distinguishes SHA-256 session digests from captures produced by
+// older versions, which used per-key HMAC-SHA-256 digests.
+const sessionHashID = "sha256"
+
 type Event struct {
 	Sequence     uint64 `json:"sequence"`
 	Session      string `json:"session,omitempty"`
@@ -35,9 +38,10 @@ type Event struct {
 }
 
 type Snapshot struct {
-	Version      int       `json:"version"`
-	CaptureID    string    `json:"capture_id"`
-	Source       string    `json:"source"`
+	Version   int    `json:"version"`
+	CaptureID string `json:"capture_id"`
+	Source    string `json:"source"`
+	// KeyID identifies the session digest scheme. Current captures use "sha256".
 	KeyID        string    `json:"key_id"`
 	StartedAt    time.Time `json:"started_at"`
 	EndedAt      time.Time `json:"ended_at"`
@@ -69,10 +73,10 @@ type Options struct {
 	Route func(*http.Request) string
 	// Include runs before instrumentation; use it to exclude assets and health checks.
 	Include func(*http.Request) bool
-	// HashKey must match across servers to join sessions. Empty generates a random
-	// per-recorder key. Keys are copied and never included in exported data.
-	HashKey   []byte
-	MaxEvents int
+	// ExcludePaths excludes each path and its descendants across all adapters.
+	// Paths must be absolute URL paths, such as "/assets" or "/healthz".
+	ExcludePaths []string
+	MaxEvents    int
 	// SampleEvery keeps approximately 1/N whole sessions, not isolated requests.
 	SampleEvery uint64
 }
@@ -84,17 +88,16 @@ type capture struct {
 }
 
 type Recorder struct {
-	opts   Options
-	keyID  string
-	active atomic.Pointer[capture]
-	mu     sync.Mutex
-	macs   sync.Pool
-	last   *Snapshot
+	opts    Options
+	active  atomic.Pointer[capture]
+	mu      sync.Mutex
+	hashers sync.Pool
+	last    *Snapshot
 }
 
-type sessionMAC struct {
-	mac hash.Hash
-	sum [sha256.Size]byte
+type sessionHasher struct {
+	hash hash.Hash
+	sum  [sha256.Size]byte
 }
 
 // Observation contains the request details collected by an adapter after the
@@ -136,6 +139,17 @@ func New(opts Options) (*Recorder, error) {
 	if opts.Include == nil {
 		opts.Include = DefaultInclude
 	}
+	opts.ExcludePaths = append([]string(nil), opts.ExcludePaths...)
+	for i, path := range opts.ExcludePaths {
+		if path == "" || path[0] != '/' || strings.ContainsAny(path, "?#") {
+			return nil, errors.New("ExcludePaths entries must be absolute URL paths without query or fragment")
+		}
+		path = strings.TrimRight(path, "/")
+		if path == "" {
+			path = "/"
+		}
+		opts.ExcludePaths[i] = path
+	}
 	if opts.Source == "" {
 		var b [8]byte
 		if _, err := rand.Read(b[:]); err != nil {
@@ -143,17 +157,8 @@ func New(opts Options) (*Recorder, error) {
 		}
 		opts.Source = hex.EncodeToString(b[:])
 	}
-	key := append([]byte(nil), opts.HashKey...)
-	opts.HashKey = nil
-	if len(key) == 0 {
-		key = make([]byte, 32)
-		if _, err := rand.Read(key); err != nil {
-			return nil, err
-		}
-	}
-	id := sha256.Sum256(key)
-	r := &Recorder{opts: opts, keyID: hex.EncodeToString(id[:8])}
-	r.macs.New = func() any { return &sessionMAC{mac: hmac.New(sha256.New, key)} }
+	r := &Recorder{opts: opts}
+	r.hashers.New = func() any { return &sessionHasher{hash: sha256.New()} }
 	return r, nil
 }
 
@@ -164,7 +169,7 @@ func (r *Recorder) Start(id string) error {
 	}
 	// Allocate outside the hot-path mutex. Call the control endpoint off-benchmark.
 	c := &capture{snapshot: Snapshot{Version: Version, CaptureID: id,
-		Source: r.opts.Source, KeyID: r.keyID, StartedAt: time.Now().UTC(),
+		Source: r.opts.Source, KeyID: sessionHashID, StartedAt: time.Now().UTC(),
 		Capacity: r.opts.MaxEvents, SampleEvery: r.opts.SampleEvery,
 		Events: make([]Event, 0, r.opts.MaxEvents)}}
 	r.mu.Lock()
@@ -337,22 +342,32 @@ func captureHTTPMetrics(next http.Handler, w http.ResponseWriter, req *http.Requ
 	return metrics
 }
 
-// Begin opens a request span when a capture is active. It has no request to
-// evaluate, so it does not apply Options.Include; use BeginRequest for HTTP work.
-func (r *Recorder) Begin() *Span { return r.begin(nil) }
+// Begin opens a span when a capture is active, without evaluating request filters.
+// Use BeginRequest or BeginPath for HTTP requests.
+func (r *Recorder) Begin() *Span { return r.begin(nil, "") }
+
+// BeginPath opens a span for a native-framework request using its URL path.
+// It applies ExcludePaths but has no net/http request for the Include callback.
+func (r *Recorder) BeginPath(path string) *Span { return r.begin(nil, path) }
 
 // Enabled reports whether a capture is currently active. Native adapters can
 // use it as a cheap preflight before converting framework requests; Begin and
 // BeginRequest recheck the active capture before admission.
 func (r *Recorder) Enabled() bool { return r.active.Load() != nil }
 
-// BeginRequest opens a request span when a capture is active and Include accepts
-// the request.
-func (r *Recorder) BeginRequest(req *http.Request) *Span { return r.begin(req) }
+// BeginRequest opens a request span when a capture is active and its path and
+// Include callback accept the request.
+func (r *Recorder) BeginRequest(req *http.Request) *Span {
+	path := ""
+	if req != nil && req.URL != nil {
+		path = req.URL.Path
+	}
+	return r.begin(req, path)
+}
 
-func (r *Recorder) begin(req *http.Request) *Span {
+func (r *Recorder) begin(req *http.Request, path string) *Span {
 	c := r.active.Load()
-	if c == nil || (req != nil && r.opts.Include != nil && !r.opts.Include(req)) {
+	if c == nil || r.excludedPath(path) || (req != nil && r.opts.Include != nil && !r.opts.Include(req)) {
 		return nil
 	}
 	r.mu.Lock()
@@ -367,8 +382,23 @@ func (r *Recorder) begin(req *http.Request) *Span {
 	return &Span{recorder: r, capture: c, sequence: sequence, start: time.Now()}
 }
 
+func (r *Recorder) excludedPath(path string) bool {
+	if path == "" {
+		return false
+	}
+	for _, excluded := range r.opts.ExcludePaths {
+		if path == excluded || excluded == "/" {
+			return true
+		}
+		if strings.HasPrefix(path, excluded) && len(path) > len(excluded) && path[len(excluded)] == '/' {
+			return true
+		}
+	}
+	return false
+}
+
 // End records the completed observation once. Raw session identifiers are
-// immediately reduced to a keyed hash and never enter the capture.
+// immediately reduced to a stable SHA-256 digest and never enter the capture.
 func (s *Span) End(obs Observation) {
 	if s == nil || !s.ended.CompareAndSwap(false, true) {
 		return
@@ -394,19 +424,19 @@ func (s *Span) End(obs Observation) {
 	}
 	keep := true
 	if session != "" {
-		state := r.macs.Get().(*sessionMAC)
-		state.mac.Reset()
-		_, _ = state.mac.Write([]byte(session))
-		sum := state.mac.Sum(state.sum[:0])
+		state := r.hashers.Get().(*sessionHasher)
+		state.hash.Reset()
+		_, _ = state.hash.Write([]byte(session))
+		sum := state.hash.Sum(state.sum[:0])
 		var sample uint64
 		for _, b := range sum[:8] {
 			sample = sample<<8 | uint64(b)
 		}
 		keep = sample%r.opts.SampleEvery == 0
-		var encoded [32]byte
-		hex.Encode(encoded[:], sum[:16])
+		var encoded [sha256.Size * 2]byte
+		hex.Encode(encoded[:], sum)
 		session = string(encoded[:])
-		r.macs.Put(state)
+		r.hashers.Put(state)
 	}
 	r.mu.Lock()
 	if r.active.Load() != c {

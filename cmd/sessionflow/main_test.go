@@ -14,7 +14,7 @@ import (
 
 func controlServer(t *testing.T, source string) (*flow.Recorder, *httptest.Server) {
 	t.Helper()
-	r, err := flow.New(flow.Options{Source: source, MaxEvents: 10, HashKey: []byte("shared-key")})
+	r, err := flow.New(flow.Options{Source: source, MaxEvents: 10})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -35,7 +35,7 @@ adapterは`github.com/ultra-fast-gopher/sessionflow/integration/<名前>`とい�
 | Negroni | [互換テスト](../integration/httpcompat) | `UseHandler(rec.Wrap(handler))` |
 
 標準HTTP型のmiddlewareは、`Options.Session`で`req.Context()`内の認証情報を参照できます。
-独自contextを持つadapterには`Config.Session`があります。Cookie名の既定値は本体の`CookieName`を使い、保存時には共通のHMAC処理を通します。
+独自contextを持つadapterには`Config.Session`があります。Cookie名の既定値は本体の`CookieName`を使い、保存時には共通のSHA-256処理を通します。
 
 ## Goアプリから参照する
 

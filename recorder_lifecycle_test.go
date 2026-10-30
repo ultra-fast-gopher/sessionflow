@@ -16,7 +16,7 @@ type hijackResponseRecorder struct{ *httptest.ResponseRecorder }
 func (*hijackResponseRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) { return nil, nil, nil }
 
 func TestSpanLifecycleAndPrivacy(t *testing.T) {
-	r := recorder(t, Options{Source: "lifecycle", HashKey: []byte("shared"), MaxEvents: 2})
+	r := recorder(t, Options{Source: "lifecycle", MaxEvents: 2})
 	if span := r.Begin(); span != nil {
 		t.Fatal("Begin returned a span while disabled")
 	}
@@ -41,7 +41,7 @@ func TestSpanLifecycleAndPrivacy(t *testing.T) {
 		t.Fatalf("lifecycle counters: %+v", s)
 	}
 	e := s.Events[0]
-	if e.Method != "GET" || e.Route != "/users/{id}" || e.Status != 202 || e.Bytes != 17 || e.DurationNS != int64(5*time.Millisecond) || e.Session == "private-session" || len(e.Session) != 32 {
+	if e.Method != "GET" || e.Route != "/users/{id}" || e.Status != 202 || e.Bytes != 17 || e.DurationNS != int64(5*time.Millisecond) || e.Session == "private-session" || len(e.Session) != 64 {
 		t.Fatalf("observation: %+v", e)
 	}
 	if strings.Contains(e.Route, "42") || strings.Contains(e.Session, "private") {
@@ -113,7 +113,6 @@ func TestSessionAndRouteHelpers(t *testing.T) {
 func TestHandlerPanicIsNotMaskedByMetadataCallbacks(t *testing.T) {
 	r := recorder(t, Options{
 		Source:  "panic-metadata",
-		HashKey: []byte("shared"),
 		Route:   func(*http.Request) string { panic("metadata route") },
 		Session: func(*http.Request) string { panic("metadata session") },
 	})
@@ -133,7 +132,7 @@ func TestHandlerPanicIsNotMaskedByMetadataCallbacks(t *testing.T) {
 	if err := s.Validate(); err != nil {
 		t.Fatal(err)
 	}
-	if len(s.Events) != 1 || !s.Events[0].Panicked || s.Events[0].Status != 0 || s.Events[0].Route != "/items/{id}" || s.Events[0].Session == "raw-cookie-secret" || len(s.Events[0].Session) != 32 {
+	if len(s.Events) != 1 || !s.Events[0].Panicked || s.Events[0].Status != 0 || s.Events[0].Route != "/items/{id}" || s.Events[0].Session == "raw-cookie-secret" || len(s.Events[0].Session) != 64 {
 		t.Fatalf("panic event: %+v", s.Events)
 	}
 }

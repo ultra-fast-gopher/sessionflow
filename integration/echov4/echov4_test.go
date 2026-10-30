@@ -13,7 +13,7 @@ import (
 
 func TestMiddlewareRouteSessionAndReturnedError(t *testing.T) {
 	rootCalls, nativeCalls := 0, 0
-	r, err := flow.New(flow.Options{Source: "test", HashKey: []byte("test-key"), Session: func(*http.Request) string { rootCalls++; return "root" }})
+	r, err := flow.New(flow.Options{Source: "test", Session: func(*http.Request) string { rootCalls++; return "root" }})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +82,7 @@ func TestMiddlewareRouteSessionAndReturnedError(t *testing.T) {
 }
 
 func TestConcurrentContextReuse(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "test", HashKey: []byte("test-key"), MaxEvents: 128})
+	r, err := flow.New(flow.Options{Source: "test", MaxEvents: 128})
 	if err != nil {
 		t.Fatal(err)
 	}

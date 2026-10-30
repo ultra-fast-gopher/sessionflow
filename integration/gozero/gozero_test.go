@@ -17,7 +17,7 @@ import (
 type sessionKey struct{}
 
 func TestRouteHandlerTemplatesParamsAndSessionContext(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "go-zero", HashKey: []byte("shared"), MaxEvents: 10, Session: func(req *http.Request) string { value, _ := req.Context().Value(sessionKey{}).(string); return value }})
+	r, err := flow.New(flow.Options{Source: "go-zero", MaxEvents: 10, Session: func(req *http.Request) string { value, _ := req.Context().Value(sessionKey{}).(string); return value }})
 	if err != nil {
 		t.Fatal(err)
 	}

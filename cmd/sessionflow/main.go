@@ -477,7 +477,7 @@ func demo(args []string) error {
 	if f.NArg() > 0 {
 		return errors.New("unexpected positional arguments")
 	}
-	r, err := flow.New(flow.Options{Source: "demo", HashKey: []byte("demo-only-key"), MaxEvents: 5000, Include: flow.DefaultInclude})
+	r, err := flow.New(flow.Options{Source: "demo", MaxEvents: 5000, Include: flow.DefaultInclude})
 	if err != nil {
 		return err
 	}

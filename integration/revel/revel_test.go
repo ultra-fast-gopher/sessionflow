@@ -38,7 +38,7 @@ func TestFilterObservesRoutedResultAndUniqueTemplate(t *testing.T) {
 	}
 	revel.MainRouter = &revel.Router{Tree: tree, Routes: []*revel.Route{route}}
 
-	rec, err := sessionflow.New(sessionflow.Options{Source: "revel-test", HashKey: []byte("test-key")})
+	rec, err := sessionflow.New(sessionflow.Options{Source: "revel-test"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +82,7 @@ func TestFilterObservesRoutedResultAndUniqueTemplate(t *testing.T) {
 		t.Fatalf("events = %d", len(snap.Events))
 	}
 	e := snap.Events[0]
-	if e.Route != "/users/:id" || e.Status != w.Code || e.BytesUnknown || e.Bytes != int64(w.Body.Len()) || e.DurationNS <= 0 || e.Session == "private-session" || len(e.Session) != 32 {
+	if e.Route != "/users/:id" || e.Status != w.Code || e.BytesUnknown || e.Bytes != int64(w.Body.Len()) || e.DurationNS <= 0 || e.Session == "private-session" || len(e.Session) != 64 {
 		t.Fatalf("event = %#v", e)
 	}
 }
@@ -106,7 +106,7 @@ func TestResultPanicIsRecordedAndPropagated(t *testing.T) {
 		t.Fatal(err)
 	}
 	revel.MainRouter = &revel.Router{Tree: tree, Routes: []*revel.Route{route}}
-	rec, err := sessionflow.New(sessionflow.Options{Source: "revel-panic-test", HashKey: []byte("test-key")})
+	rec, err := sessionflow.New(sessionflow.Options{Source: "revel-panic-test"})
 	if err != nil {
 		t.Fatal(err)
 	}

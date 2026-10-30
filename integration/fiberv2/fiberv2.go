@@ -1,7 +1,8 @@
 // Package fiberv2 adapts Fiber v2's fasthttp-backed contexts without building
 // net/http request or response wrappers. Recorder's Session, Route, and Include
 // options accept net/http requests and do not run here; use this package's
-// Config callbacks instead. Streamed response byte counts are marked unknown
+// Config callbacks instead. Recorder ExcludePaths is applied to native paths.
+// Streamed response byte counts are marked unknown
 // and the stream is left untouched.
 // To capture returned errors, wrap the application's handler in
 // fiber.Config{ErrorHandler: fiberv2.ErrorHandler(existing)} before app.Use.
@@ -49,7 +50,7 @@ func Middleware(rec *flow.Recorder, configs ...Config) fiber.Handler {
 		} else if strings.HasPrefix(c.Path(), "/debug/") {
 			return c.Next()
 		}
-		span := rec.Begin()
+		span := rec.BeginPath(c.Path())
 		if span == nil {
 			return c.Next()
 		}

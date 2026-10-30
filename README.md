@@ -67,7 +67,7 @@ net/http の例です。controlはアプリと別のprivate listenerに置きま
 ```go
 rec, err := sessionflow.New(sessionflow.Options{
     CookieName: "session", // 実際のCookie名に合わせる
-    HashKey: []byte(os.Getenv("SESSIONFLOW_HASH_KEY")),
+    ExcludePaths: []string{"/assets", "/healthz"},
     MaxEvents: 100_000,
     SampleEvery: 1,
 })
@@ -88,10 +88,12 @@ log.Fatal(http.ListenAndServe(":8080", rec.Wrap(mux)))
 - `net/http.ServeMux` では `Request.Pattern` を使います。`GET /items/{id}` のmethod部分は除去し、nodeは `GET /items/{id}` と表記します。
 - テンプレートが取れないルートは `<unmatched>` に集約します。実URLやクエリ文字列への自動フォールバックはありません。
 - `Include func(*http.Request) bool` で静的ファイル等を除外できます。既定では `/debug/` を除外します。独自のIncludeを指定した場合、この既定値を置き換えます。
+- `ExcludePaths: []string{"/assets", "/healthz"}` は指定pathとその配下を全adapterで除外します。`/assets` は `/assets` と `/assets/...` に一致し、`/assets-old` には一致しません。`Include`とは独立して適用されます。
 - `Route func(*http.Request) string` でルータのテンプレートを渡せます。raw URLではなく、パラメータを正規化した値を返してください。
-- `Session func(*http.Request) string` で独自のsession IDや認証済みuser IDを渡せます。このcallbackはhandler終了後に実行されます。生値は保存せずHMACに変換します。
+- `Session func(*http.Request) string` で独自のsession IDや認証済みuser IDを渡せます。このcallbackはhandler終了後に実行されます。生値は保存せず、鍵なしSHA-256のhex digestに変換します。
 - Cookie欠落時は遷移を作りません。IP・User-Agentでユーザを推測せず、ルートごとの集計にだけ含めます。
-- `HashKey` を省略するとプロセス内でランダムな鍵を生成します。複数サーバを結合するときは**同じ鍵**を渡してください。鍵は収集ファイルに含めません。
+- 同じsession値は全プロセス・captureで同じ64文字のSHA-256キーになります。session値が変わると別sessionとして扱います。鍵の設定や環境変数は不要です。
+- このdigestは秘匿用途ではなく、session値の安定した照合キーです。captureをまたいで同じsession値を照合できます。
 - `Source` を省略するとランダムIDを生成します。指定する場合はプロセス間で一意にしてください。
 - Cookie更新・ログイン時のsessionローテーションで値が変わると別sessionになります。更新前後を結合したい場合は `Session` callbackで安定したIDを使います。初回レスポンスのSet-Cookieは自動追跡しません。
 
@@ -159,7 +161,7 @@ r.Get("/items/{id}", showItem)
 ```
 
 遠隔のprivate listenerへはSSH転送などを使ってください。`SESSIONFLOW_TOKEN` を設定するとBearer認証します。
-複数サーバは同一 `HashKey` と時刻同期が必要です。各サーバのstart / stop時刻はファイルに保存されます。HTTP制御なので開始・終了は完全には同時になりません。
+複数サーバのsessionは同じSHA-256キーで結合されます。時刻同期が必要です。各サーバのstart / stop時刻はファイルに保存されます。HTTP制御なので開始・終了は完全には同時になりません。
 
 `Ctrl-C` / `SIGTERM` でもstopして保存します。一部のstartが失敗した場合、成功したtargetをstopして部分データとエラーを保存し、終了コード1を返します。
 stop自体が通信エラーになった場合も、成功したtargetのデータは保存します。エラーに出たcapture IDを使って状態を確認してください。
@@ -205,8 +207,8 @@ HTTP APIは `POST /start`・`POST /stop`（body: `{"capture_id":"bench-003"}`）
 ```
 
 `-view all` は `summary`, `nodes`, `edges`, `paths`, `sessions` を含みます。
-`-session` はhashまたは完全なsession ID（capture ID + key ID + hash）に一致させます。
-異なるcapture IDや異なる鍵のsessionは結合しません。同じcapture ID + sourceの二重読み込みはエラーにします。
+`-session` はSHA-256 hashまたは完全なsession ID（capture ID + hash scheme ID + hash）に一致させます。
+異なるcapture IDや異なるsession hash IDのsessionは結合しません。同じcapture ID + sourceの二重読み込みはエラーにします。
 JSONの解析結果の並びは回数降順・同率時は名前順で安定しています。sessionはID順です。
 
 遷移の `count` / `sessions` / `probability` に加え、遷移先リクエストの `total_ms` / `p95_ms` / `errors`、前の実行区間からの `mean_gap_ms` を返します。
@@ -220,7 +222,7 @@ Fiber/fasthttp等でstreaming本文の送信量を取得できない場合、`by
 これは**サーバが観測したsession内のリクエスト列**です。HTMLページの画面遷移を識別するbrowser SDKではありません。
 API・ポーリング・静的ファイル等も、除外しなければ列に含まれます。Refererによる親子関係・因果関係は推測しません。
 
-1. 同一capture ID・同一鍵・同一sessionをまとめ、**開始時刻順**に並べます。完了順で並べ替えません。
+1. 同一capture ID・同一hash ID・同一sessionをまとめ、**開始時刻順**に並べます。完了順で並べ替えません。
 2. 隣接するリクエストを辺として集計します。ただし先行するリクエストがまだ実行中なら `overlap` として除外します。タイムラインには残します。
 3. `-max-gap`（既定30分）を超える空白で列を切ります。
 4. シーケンスは上の切断位置で区切った観測列です。同じsessionの再訪も回数に含みます。

@@ -11,7 +11,7 @@ import (
 )
 
 func TestWrapNativeRouteCookieAndUnknownFallback(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "test", HashKey: []byte("test-key"), CookieName: "sid"})
+	r, err := flow.New(flow.Options{Source: "test", CookieName: "sid"})
 	if err != nil {
 		t.Fatal(err)
 	}

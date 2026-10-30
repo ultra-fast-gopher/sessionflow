@@ -113,7 +113,7 @@ func Analyze(captures []flow.Snapshot, opts Options) (*Report, error) {
 	edges := map[[2]string]*Edge{}
 	edgeAcc := map[[2]string]*accumulator{}
 	paths := map[string]*Path{}
-	keys := map[string]bool{}
+	hashIDs := map[string]bool{}
 	samples := map[uint64]bool{}
 	seenCaptures := map[[2]string]bool{}
 	addNode := func(e flow.Event, sid string) string {
@@ -149,7 +149,7 @@ func Analyze(captures []flow.Snapshot, opts Options) (*Report, error) {
 			return nil, fmt.Errorf("duplicate capture %s from %s", c.CaptureID, c.Source)
 		}
 		seenCaptures[identity] = true
-		keys[c.KeyID] = true
+		hashIDs[c.KeyID] = true
 		samples[c.SampleEvery] = true
 		r.Summary.Seen += c.Seen
 		r.Summary.Dropped += c.Dropped
@@ -249,8 +249,8 @@ func Analyze(captures []flow.Snapshot, opts Options) (*Report, error) {
 		r.Sessions = append(r.Sessions, *s)
 	}
 	r.Summary.Sessions = len(r.Sessions)
-	if len(keys) > 1 {
-		r.Summary.Warnings = append(r.Summary.Warnings, "Different hash keys: sessions across those sources cannot be joined.")
+	if len(hashIDs) > 1 {
+		r.Summary.Warnings = append(r.Summary.Warnings, "Different session hash IDs: sessions across those sources cannot be joined.")
 	}
 	if len(samples) > 1 {
 		r.Summary.Warnings = append(r.Summary.Warnings, "Different sampling rates: cross-source sequences may be incomplete.")

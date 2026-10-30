@@ -39,7 +39,7 @@ func prepare(ctx *app.RequestContext, method, target, session string) {
 }
 
 func TestMiddlewareNativeSessionRouteStatusAndBytes(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "hertz", HashKey: []byte("shared"), MaxEvents: 10})
+	r, err := flow.New(flow.Options{Source: "hertz", MaxEvents: 10})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +74,7 @@ func TestMiddlewareNativeSessionRouteStatusAndBytes(t *testing.T) {
 	if err := s.Validate(); err != nil {
 		t.Fatal(err)
 	}
-	if len(s.Events) != 1 || s.Events[0].Route != "/api/users/:id" || s.Events[0].Status != 201 || s.Events[0].Bytes != 2 || s.Events[0].DurationNS <= 0 || s.Events[0].Session == "native-session-secret" || len(s.Events[0].Session) != 32 {
+	if len(s.Events) != 1 || s.Events[0].Route != "/api/users/:id" || s.Events[0].Status != 201 || s.Events[0].Bytes != 2 || s.Events[0].DurationNS <= 0 || s.Events[0].Session == "native-session-secret" || len(s.Events[0].Session) != 64 {
 		t.Fatalf("events: %+v", s.Events)
 	}
 	data, _ := json.Marshal(s)
@@ -84,7 +84,7 @@ func TestMiddlewareNativeSessionRouteStatusAndBytes(t *testing.T) {
 }
 
 func TestMiddlewareContextReuseCopiesSessionAndKeepsRoutes(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "hertz", HashKey: []byte("shared"), MaxEvents: 10})
+	r, err := flow.New(flow.Options{Source: "hertz", MaxEvents: 10})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -195,7 +195,7 @@ func TestDefaultDebugExclusion(t *testing.T) {
 }
 
 func TestHandlerPanicDoesNotRunMetadataCallbacks(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "hertz-panic", HashKey: []byte("shared"), MaxEvents: 10})
+	r, err := flow.New(flow.Options{Source: "hertz-panic", MaxEvents: 10})
 	if err != nil {
 		t.Fatal(err)
 	}

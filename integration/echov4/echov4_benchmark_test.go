@@ -13,7 +13,7 @@ import (
 func BenchmarkEchoMiddleware(b *testing.B) {
 	for _, mode := range []string{"baseline", "disabled", "recording"} {
 		b.Run(mode, func(b *testing.B) {
-			r, err := flow.New(flow.Options{Source: "bench", HashKey: []byte("bench-key"), MaxEvents: 512})
+			r, err := flow.New(flow.Options{Source: "bench", MaxEvents: 512})
 			if err != nil {
 				b.Fatal(err)
 			}
@@ -55,7 +55,7 @@ func BenchmarkEchoMiddleware(b *testing.B) {
 func BenchmarkEchoStaticRouteIndex(b *testing.B) {
 	for _, routeCount := range []int{1, 128} {
 		b.Run(fmt.Sprintf("routes-%d", routeCount), func(b *testing.B) {
-			r, err := flow.New(flow.Options{Source: "bench", HashKey: []byte("bench-key"), MaxEvents: 256})
+			r, err := flow.New(flow.Options{Source: "bench", MaxEvents: 256})
 			if err != nil {
 				b.Fatal(err)
 			}

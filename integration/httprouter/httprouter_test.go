@@ -13,7 +13,7 @@ import (
 )
 
 func TestRegisteredTemplateAndPrivacy(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "httprouter", HashKey: []byte("shared"), MaxEvents: 10})
+	r, err := flow.New(flow.Options{Source: "httprouter", MaxEvents: 10})
 	if err != nil {
 		t.Fatal(err)
 	}

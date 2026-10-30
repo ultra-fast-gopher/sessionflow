@@ -12,7 +12,7 @@ import (
 
 // Config contains callbacks for values stored in the native Hertz context.
 // Recorder Options.Session, Route, and Include are net/http-only and are not
-// invoked by this adapter.
+// invoked by this adapter. Recorder ExcludePaths is applied to native paths.
 type Config struct {
 	Session func(context.Context, *app.RequestContext) string
 	Route   func(context.Context, *app.RequestContext, string) string
@@ -41,7 +41,7 @@ func Middleware(rec *flow.Recorder, configs ...Config) app.HandlerFunc {
 			c.Next(ctx)
 			return
 		}
-		span := rec.Begin()
+		span := rec.BeginPath(string(c.Path()))
 		if span == nil {
 			c.Next(ctx)
 			return

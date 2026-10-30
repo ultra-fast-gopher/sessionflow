@@ -110,7 +110,7 @@ func TestPanickingHandlerSkipsUserCallbacks(t *testing.T) {
 }
 
 func TestMiddlewareErrorHookAndRouteTemplate(t *testing.T) {
-	r, err := flow.New(flow.Options{Source: "test", HashKey: []byte("test-key")})
+	r, err := flow.New(flow.Options{Source: "test"})
 	if err != nil {
 		t.Fatal(err)
 	}
