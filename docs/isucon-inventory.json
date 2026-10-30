@@ -1,0 +1,315 @@
+{
+  "checked_at": "2026-10-30",
+  "repositories": [
+    {
+      "repository": "isucon10-final",
+      "branch": "master",
+      "checked_files": 45,
+      "dependencies": {
+        "github.com/labstack/echo-contrib/session": [
+          "https://github.com/isucon/isucon10-final/blob/master/webapp/golang/cmd/xsuportal/main.go"
+        ],
+        "github.com/labstack/echo/v4": [
+          "https://github.com/isucon/isucon10-final/blob/master/webapp/golang/cmd/xsuportal/main.go",
+          "https://github.com/isucon/isucon10-final/blob/master/webapp/golang/go.mod"
+        ],
+        "github.com/labstack/echo/v4/middleware": [
+          "https://github.com/isucon/isucon10-final/blob/master/webapp/golang/cmd/xsuportal/main.go"
+        ],
+        "github.com/labstack/echo-contrib": [
+          "https://github.com/isucon/isucon10-final/blob/master/webapp/golang/go.mod"
+        ]
+      }
+    },
+    {
+      "repository": "isucon10-qualify",
+      "branch": "master",
+      "checked_files": 2,
+      "dependencies": {
+        "github.com/labstack/echo": [
+          "https://github.com/isucon/isucon10-qualify/blob/master/webapp/go/go.mod",
+          "https://github.com/isucon/isucon10-qualify/blob/master/webapp/go/main.go"
+        ],
+        "github.com/labstack/echo/middleware": [
+          "https://github.com/isucon/isucon10-qualify/blob/master/webapp/go/main.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon11-final",
+      "branch": "main",
+      "checked_files": 4,
+      "dependencies": {
+        "github.com/labstack/echo-contrib": [
+          "https://github.com/isucon/isucon11-final/blob/main/webapp/go/go.mod"
+        ],
+        "github.com/labstack/echo/v4": [
+          "https://github.com/isucon/isucon11-final/blob/main/webapp/go/go.mod",
+          "https://github.com/isucon/isucon11-final/blob/main/webapp/go/main.go"
+        ],
+        "github.com/labstack/echo-contrib/session": [
+          "https://github.com/isucon/isucon11-final/blob/main/webapp/go/main.go"
+        ],
+        "github.com/labstack/echo/v4/middleware": [
+          "https://github.com/isucon/isucon11-final/blob/main/webapp/go/main.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon11-prior",
+      "branch": "main",
+      "checked_files": 4,
+      "dependencies": {
+        "github.com/gorilla/mux": [
+          "https://github.com/isucon/isucon11-prior/blob/main/webapp/golang/app.go",
+          "https://github.com/isucon/isucon11-prior/blob/main/webapp/golang/go.mod"
+        ]
+      }
+    },
+    {
+      "repository": "isucon11-qualify",
+      "branch": "main",
+      "checked_files": 2,
+      "dependencies": {
+        "github.com/labstack/echo/v4": [
+          "https://github.com/isucon/isucon11-qualify/blob/main/webapp/go/go.mod",
+          "https://github.com/isucon/isucon11-qualify/blob/main/webapp/go/main.go"
+        ],
+        "github.com/labstack/echo/v4/middleware": [
+          "https://github.com/isucon/isucon11-qualify/blob/main/webapp/go/main.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon12-final",
+      "branch": "main",
+      "checked_files": 3,
+      "dependencies": {
+        "github.com/labstack/echo/v4": [
+          "https://github.com/isucon/isucon12-final/blob/main/webapp/go/admin.go",
+          "https://github.com/isucon/isucon12-final/blob/main/webapp/go/go.mod",
+          "https://github.com/isucon/isucon12-final/blob/main/webapp/go/main.go"
+        ],
+        "github.com/labstack/echo/v4/middleware": [
+          "https://github.com/isucon/isucon12-final/blob/main/webapp/go/main.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon12-prior",
+      "branch": "main",
+      "checked_files": 0,
+      "dependencies": {}
+    },
+    {
+      "repository": "isucon12-qualify",
+      "branch": "main",
+      "checked_files": 4,
+      "dependencies": {
+        "github.com/labstack/echo/v4": [
+          "https://github.com/isucon/isucon12-qualify/blob/main/webapp/go/go.mod",
+          "https://github.com/isucon/isucon12-qualify/blob/main/webapp/go/isuports.go"
+        ],
+        "github.com/labstack/echo/v4/middleware": [
+          "https://github.com/isucon/isucon12-qualify/blob/main/webapp/go/isuports.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon13",
+      "branch": "main",
+      "checked_files": 9,
+      "dependencies": {
+        "github.com/labstack/echo-contrib": [
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/go.mod"
+        ],
+        "github.com/labstack/echo/v4": [
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/go.mod",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/livecomment_handler.go",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/livestream_handler.go",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/main.go",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/payment_handler.go",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/reaction_handler.go",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/stats_handler.go",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/top_handler.go",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/user_handler.go"
+        ],
+        "github.com/labstack/echo-contrib/session": [
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/livecomment_handler.go",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/livestream_handler.go",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/main.go",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/reaction_handler.go",
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/user_handler.go"
+        ],
+        "github.com/labstack/echo/v4/middleware": [
+          "https://github.com/isucon/isucon13/blob/main/webapp/go/main.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon14",
+      "branch": "main",
+      "checked_files": 10,
+      "dependencies": {
+        "github.com/go-chi/chi/v5": [
+          "https://github.com/isucon/isucon14/blob/main/webapp/go/go.mod",
+          "https://github.com/isucon/isucon14/blob/main/webapp/go/main.go"
+        ],
+        "github.com/go-chi/chi/v5/middleware": [
+          "https://github.com/isucon/isucon14/blob/main/webapp/go/main.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon2",
+      "branch": "master",
+      "checked_files": 0,
+      "dependencies": {}
+    },
+    {
+      "repository": "isucon3",
+      "branch": "master",
+      "checked_files": 7,
+      "dependencies": {
+        "github.com/gorilla/mux": [
+          "https://github.com/isucon/isucon3/blob/master/final/webapp/go/app.go",
+          "https://github.com/isucon/isucon3/blob/master/qualifier/webapp/go/app.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon4",
+      "branch": "master",
+      "checked_files": 5,
+      "dependencies": {
+        "github.com/go-martini/martini": [
+          "https://github.com/isucon/isucon4/blob/master/final/webapp/go/app.go",
+          "https://github.com/isucon/isucon4/blob/master/qualifier/webapp/go/main.go"
+        ],
+        "github.com/martini-contrib/render": [
+          "https://github.com/isucon/isucon4/blob/master/final/webapp/go/app.go",
+          "https://github.com/isucon/isucon4/blob/master/qualifier/webapp/go/main.go"
+        ],
+        "github.com/martini-contrib/sessions": [
+          "https://github.com/isucon/isucon4/blob/master/qualifier/webapp/go/main.go",
+          "https://github.com/isucon/isucon4/blob/master/qualifier/webapp/go/util.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon5-final",
+      "branch": "master",
+      "checked_files": 1,
+      "dependencies": {
+        "github.com/gorilla/mux": [
+          "https://github.com/isucon/isucon5-final/blob/master/webapp/golang/app.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon5-qualify",
+      "branch": "master",
+      "checked_files": 1,
+      "dependencies": {
+        "github.com/gorilla/mux": [
+          "https://github.com/isucon/isucon5-qualify/blob/master/webapp/go/app.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon6-final",
+      "branch": "master",
+      "checked_files": 1,
+      "dependencies": {
+        "goji.io/pat": [
+          "https://github.com/isucon/isucon6-final/blob/master/webapp/go/app.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon6-qualify",
+      "branch": "master",
+      "checked_files": 4,
+      "dependencies": {
+        "github.com/gorilla/mux": [
+          "https://github.com/isucon/isucon6-qualify/blob/master/webapp/go/isuda.go",
+          "https://github.com/isucon/isucon6-qualify/blob/master/webapp/go/isutar.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon7-final",
+      "branch": "master",
+      "checked_files": 3,
+      "dependencies": {
+        "github.com/gorilla/mux": [
+          "https://github.com/isucon/isucon7-final/blob/master/webapp/go/src/app/main.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon7-qualify",
+      "branch": "master",
+      "checked_files": 1,
+      "dependencies": {
+        "github.com/labstack/echo": [
+          "https://github.com/isucon/isucon7-qualify/blob/master/webapp/go/src/isubata/app.go"
+        ],
+        "github.com/labstack/echo-contrib/session": [
+          "https://github.com/isucon/isucon7-qualify/blob/master/webapp/go/src/isubata/app.go"
+        ],
+        "github.com/labstack/echo/middleware": [
+          "https://github.com/isucon/isucon7-qualify/blob/master/webapp/go/src/isubata/app.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon8-final",
+      "branch": "master",
+      "checked_files": 10,
+      "dependencies": {
+        "github.com/julienschmidt/httprouter": [
+          "https://github.com/isucon/isucon8-final/blob/master/webapp/go/src/isucon8/isucoin/controller/handler.go",
+          "https://github.com/isucon/isucon8-final/blob/master/webapp/go/src/isucon8/isucoin/webapp/main.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon8-qualify",
+      "branch": "master",
+      "checked_files": 1,
+      "dependencies": {
+        "github.com/labstack/echo": [
+          "https://github.com/isucon/isucon8-qualify/blob/master/webapp/go/src/torb/app.go"
+        ],
+        "github.com/labstack/echo-contrib/session": [
+          "https://github.com/isucon/isucon8-qualify/blob/master/webapp/go/src/torb/app.go"
+        ],
+        "github.com/labstack/echo/middleware": [
+          "https://github.com/isucon/isucon8-qualify/blob/master/webapp/go/src/torb/app.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon9-final",
+      "branch": "master",
+      "checked_files": 3,
+      "dependencies": {
+        "goji.io/pat": [
+          "https://github.com/isucon/isucon9-final/blob/master/webapp/go/main.go"
+        ]
+      }
+    },
+    {
+      "repository": "isucon9-qualify",
+      "branch": "master",
+      "checked_files": 3,
+      "dependencies": {
+        "github.com/go-chi/chi/v5": [
+          "https://github.com/isucon/isucon9-qualify/blob/master/webapp/go/go.mod",
+          "https://github.com/isucon/isucon9-qualify/blob/master/webapp/go/main.go"
+        ]
+      }
+    }
+  ]
+}
