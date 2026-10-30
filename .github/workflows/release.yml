@@ -1,0 +1,38 @@
+name: Release binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish CLI binaries
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.26.x'
+          cache-dependency-path: '**/go.sum'
+      - name: Test core and framework adapters
+        run: make test
+      - name: Build release archives
+        run: ./scripts/build-release.sh "$GITHUB_REF_NAME"
+      - name: Create GitHub Release and upload binaries
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release_flags=()
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            release_flags+=(--prerelease)
+          fi
+          gh release create "$GITHUB_REF_NAME" dist/"$GITHUB_REF_NAME"/* \
+            --title "sessionflow $GITHUB_REF_NAME" \
+            --generate-notes \
+            --verify-tag \
+            "${release_flags[@]}"

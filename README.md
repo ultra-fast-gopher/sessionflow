@@ -15,7 +15,7 @@ sessionごとに「どのルートから、どのルートへリクエストし�
 
 ## まず試す
 
-本体・CLIはGo 1.23以降。個別adapterの必要バージョンは [対応一覧](docs/ADAPTERS.md) を参照してください。リリースtagはまだありません。公開リポジトリのソースを使う場合は、ローカルcheckoutをreplaceして参照してください。
+本体・CLIはGo 1.23以降。個別adapterの必要バージョンは [対応一覧](docs/ADAPTERS.md) を参照してください。ソースから使う場合は、ローカルcheckoutをreplaceして参照できます。CLIはGitHub Releasesでbinaryを配布します。
 
 ```sh
 # リポジトリのルートで実行
@@ -28,6 +28,27 @@ open artifacts/demo.html
 ブラウザ表示は外部ライブラリ・CDN・サーバへの接続なしで動きます。
 グラフ・遷移表をクリックすると、該当するsessionの時系列に絞り込めます。
 時系列は同じMETHOD＋routeの並びをjourneyとしてまとめ、件数順に50パターンずつ表示します。各パターンから表示する代表session数は1/3/5/10で選べます（既定3）。
+
+## CLIのrelease binary
+
+`vX.Y.Z`タグをpushするとGitHub Releaseを作成し、次のOS / CPU向けCLIアーカイブと`SHA256SUMS`を添付します。
+
+- Linux: amd64, arm64
+- macOS: amd64, arm64
+- Windows: amd64, arm64
+
+```sh
+git tag -a v0.1.0 -m 'v0.1.0'
+git push origin v0.1.0
+```
+
+Releaseページから利用環境に合うアーカイブと`SHA256SUMS`を同じディレクトリに取得し、対象アーカイブのchecksumを確認できます。
+
+```sh
+archive=sessionflow_0.1.0_linux_amd64.tar.gz
+grep "$archive" SHA256SUMS | sha256sum -c -      # Linux
+grep "$archive" SHA256SUMS | shasum -a 256 -c - # macOS
+```
 
 ## Goアプリへの導入
 
