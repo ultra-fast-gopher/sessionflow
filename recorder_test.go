@@ -3,6 +3,7 @@ package sessionflow
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -52,10 +53,26 @@ func TestMiddlewarePrivacyAndHTTPBehavior(t *testing.T) {
 		_, _ = w.Write([]byte("hello"))
 	})
 	h := r.Wrap(mux)
-	h.ServeHTTP(httptest.NewRecorder(), request("GET", "/items/42?token=secret", "raw-secret-cookie"))
+	server := httptest.NewServer(h)
+	defer server.Close()
 	start(t, r, "test")
-	w := httptest.NewRecorder()
-	h.ServeHTTP(w, request("GET", "/items/42?token=secret", "raw-secret-cookie"))
+	req, err := http.NewRequest(http.MethodGet, server.URL+"/items/42?token=secret", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.AddCookie(&http.Cookie{Name: "session", Value: "raw-secret-cookie"})
+	response, err := server.Client().Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, err := io.ReadAll(response.Body)
+	_ = response.Body.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.StatusCode != http.StatusCreated || string(body) != "hello" {
+		t.Fatalf("wire response: status=%d body=%q", response.StatusCode, body)
+	}
 	s := stop(t, r, "test")
 	if len(s.Events) != 1 {
 		t.Fatalf("events: %+v", s)
